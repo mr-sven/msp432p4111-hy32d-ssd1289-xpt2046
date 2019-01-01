@@ -152,8 +152,11 @@ SSD1289::SSD1289(DIO_PORT_Interruptable_Type * dataPort, DIO_PORT_Interruptable_
 	config.ctrlOut = &ctrlPort->OUT;
 }
 
-void SSD1289::Init(void)
+void SSD1289::Init(DisplayOrientation orientation, uint32_t width, uint32_t height)
 {
+	// call parent
+	Display::Init(orientation, width, height);
+
 	// set data direction
 	*config.dataDir = 0xffff;
 

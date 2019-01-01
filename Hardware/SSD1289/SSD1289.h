@@ -32,10 +32,10 @@ private:
 public:
 	SSD1289(DIO_PORT_Interruptable_Type * dataPort, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t rsPin, uint16_t rdPin, uint16_t wrPin);
 
-	void Init(void);
 	void Fill(uint16_t color, uint32_t count32);
 
 public: // IDisplay
+	void Init(DisplayOrientation orientation, uint32_t width, uint32_t height);
     void Rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color);
     void Pixel(uint32_t x, uint32_t y, uint16_t color);
 	void SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height);

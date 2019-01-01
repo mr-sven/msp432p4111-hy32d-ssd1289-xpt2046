@@ -374,7 +374,7 @@ void Display::Triangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint3
 	}
 }
 
-void Display::SetOrientationSize(DisplayOrientation orientation, uint32_t width, uint32_t height)
+void Display::Init(DisplayOrientation orientation, uint32_t width, uint32_t height)
 {
 	displayOrientation = orientation;
 	displayWidth = width;

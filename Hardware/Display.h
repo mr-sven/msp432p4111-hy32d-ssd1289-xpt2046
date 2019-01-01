@@ -56,7 +56,7 @@ public:
 	void Line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint16_t color);
 	void Triangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint16_t color, bool fill);
 
-	void SetOrientationSize(DisplayOrientation orientation, uint32_t width, uint32_t height);
+	void Init(DisplayOrientation orientation, uint32_t width, uint32_t height);
 
 public: // abstract function
     virtual ~Display() {}
