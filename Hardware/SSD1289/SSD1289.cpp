@@ -12,14 +12,15 @@
 #include <Core/System.h>
 
 static const uint16_t ssd1289_init [] = {
+
 	SSD1289_OSC_START, SSD1289_OSC_START_OSCEN,		// Enable LCD Oscillator
 
 	_DELAY_MS, 15,									// wait 15 ms
 
 	SSD1289_PWR_CTRL_1, SSD1289_PWR_CTRL_1_DCT(10)|	// fosc / 4
-						SSD1289_PWR_CTRL_1_BT(4)|	// VGH: VCI x 5; VGL: -(VGH) + VCI; VGH-boost: +5 ; VGL-boost:-4
+						SSD1289_PWR_CTRL_1_BT(5)|	// VGH: VCI x 5; VGL: -(VGH) + VCI; VGH-boost: +5 ; VGL-boost:-4
 						SSD1289_PWR_CTRL_1_DC(10)|	// fosc / 4
-						SSD1289_PWR_CTRL_1_AP(2),	// Small to medium
+						SSD1289_PWR_CTRL_1_AP(6),	// Small to medium
 
 	SSD1289_PWR_CTRL_2, SSD1289_PWR_CTRL_2_VRC(2),	// VCIX2: 5.3V
 
@@ -44,8 +45,8 @@ static const uint16_t ssd1289_init [] = {
 
 	SSD1289_SLEEP_MODE, 0,							// exit sleep mode
 
-	SSD1289_ENTRY_MODE, SSD1289_ENTRY_MODE_DFM(2)|	// 65k color (POR)
-						SSD1289_ENTRY_MODE_ID(2),	// Horizontal: increment; Vertical: increment
+	SSD1289_ENTRY_MODE, SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+						SSD1289_ENTRY_MODE_ID(3),	// Horizontal: increment; Vertical: increment
 
 	_DELAY_MS, 20,									// wait 20 ms
 
@@ -65,7 +66,7 @@ static const uint16_t ssd1289_init [] = {
 
 	SSD1289_FRM_CYL_CTRL, SSD1289_FRM_CYL_CTRL_NO(1)|	// 1 clock cycle (POR) of non-overlap
 						  SSD1289_FRM_CYL_CTRL_SDT(1)|	// 1 clock cycle (POR) Delay amount of the source output
-						  SSD1289_FRM_CYL_CTRL_EQ(3)	// 4 clock cycle equalizing period
+						  SSD1289_FRM_CYL_CTRL_EQ(3)|	// 4 clock cycle equalizing period
 						  SSD1289_FRM_CYL_CTRL_SRTN|	// RTN3-0 value will be count
 						  SSD1289_FRM_CYL_CTRL_RTN(2),	// no. of clocks in each line
 
@@ -105,6 +106,7 @@ static const uint16_t ssd1289_init [] = {
 	SSD1289_SET_GDDRAM_X_ADDR_CNT, 0,
 
 	_DELAY_MS, 50,									// wait 50 ms
+
 	_END
 };
 
@@ -190,9 +192,9 @@ void SSD1289::Fill(uint16_t color, uint32_t count32)
 
 void SSD1289::SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, (((x + width - 1) << 8) | x));
-	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_STRT_POS, y);
-	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_END_POS, (y + height - 1));
+	SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1) | SSD1289_HORIZ_RAM_ADDR_POS_HSA(x));
+	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_STRT_POS, SSD1289_VERT_RAM_ADDR_STRT_POS_VSA(y));
+	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_END_POS, SSD1289_VERT_RAM_ADDR_END_POS_VEA(y + height - 1));
 
 	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, x);
 	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
