@@ -74,19 +74,8 @@ static const uint16_t ssd1289_init [] = {
 
 	_DELAY_MS, 20,									// wait 20 ms
 
-	SSD1289_VERT_SCROLL_1, SSD1289_VERT_SCROLL_1_VL1(0),
-	SSD1289_VERT_SCROLL_2, SSD1289_VERT_SCROLL_2_VL2(0),
-
 	SSD1289_FIRST_WND_START, SSD1289_FIRST_WND_START_SS(0),
 	SSD1289_FIRST_WND_END, SSD1289_FIRST_WND_END_SE(319),
-
-	SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSE(239)|
-								SSD1289_HORIZ_RAM_ADDR_POS_HSA(0),
-
-	SSD1289_VERT_RAM_ADDR_STRT_POS, SSD1289_VERT_RAM_ADDR_STRT_POS_VSA(0),
-	SSD1289_VERT_RAM_ADDR_END_POS, SSD1289_VERT_RAM_ADDR_END_POS_VEA(319),
-
-	_DELAY_MS, 50,									// wait 50 ms
 
 	SSD1289_GAMMA_CTRL_1, 0x0707,
 	SSD1289_GAMMA_CTRL_2, 0x0704,
@@ -101,9 +90,6 @@ static const uint16_t ssd1289_init [] = {
 
 	SSD1289_RAM_WR_MASK_1, 0x0000,
 	SSD1289_RAM_WR_MASK_2, 0x0000,
-
-	SSD1289_SET_GDDRAM_Y_ADDR_CNT, 0,
-	SSD1289_SET_GDDRAM_X_ADDR_CNT, 0,
 
 	_DELAY_MS, 50,									// wait 50 ms
 
@@ -175,17 +161,95 @@ void SSD1289::Init(DisplayOrientation orientation, uint32_t width, uint32_t heig
 		{
 			break;
 		}
+
 		// execute delay
-		else if(command == _DELAY_MS)
+		if(command == _DELAY_MS)
 		{
 			System.DelayMs(*addr++);
+			continue;
 		}
-		else
+/*
+		uint16_t data = *addr++;
+
+		if(command == SSD1289_DRV_OUT_CTRL)
 		{
-			SSD1289_WriteReg(&config, command, *addr++);
-		}
+			switch(displayOrientation)
+			{
+			case DisplayOrientation_0:
+				data &= ~(SSD1289_DRV_OUT_CTRL_RL);
+				data |= SSD1289_DRV_OUT_CTRL_TB;
+				break;
+			case DisplayOrientation_90:
+				break;
+			case DisplayOrientation_180:
+				data &= ~(SSD1289_DRV_OUT_CTRL_TB);
+				data |= SSD1289_DRV_OUT_CTRL_RL;
+				break;
+			case DisplayOrientation_270:
+				break;
+			}
+		}*/
+
+		SSD1289_WriteReg(&config, command, *addr++);
 	}
 
+	uint16_t data = *addr++;
+
+	switch(displayOrientation)
+	{
+	case DisplayOrientation_0:
+
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_TB|  // TB
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
+		break;
+	case DisplayOrientation_90:
+
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_TB|  // TB
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_AM|		// rotate
+				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
+
+		break;
+	case DisplayOrientation_180:
+
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_RL|  // RL
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
+
+		break;
+	case DisplayOrientation_270:
+
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_RL|  // TB
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_AM|		// rotate
+				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
+		break;
+	}
 }
 
 void SSD1289::Fill(uint16_t color, uint32_t count32)
@@ -195,12 +259,24 @@ void SSD1289::Fill(uint16_t color, uint32_t count32)
 
 void SSD1289::SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1) | SSD1289_HORIZ_RAM_ADDR_POS_HSA(x));
-	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_STRT_POS, SSD1289_VERT_RAM_ADDR_STRT_POS_VSA(y));
-	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR_END_POS, SSD1289_VERT_RAM_ADDR_END_POS_VEA(y + height - 1));
+	if (displayOrientation == DisplayOrientation_90 || displayOrientation == DisplayOrientation_270)
+	{
+		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(displayHeight - y - height) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(displayHeight - y - 1));
+		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(x)); // start
+		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR + 1, SSD1289_VERT_RAM_ADDR_VA(x + width - 1)); // end
 
-	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, x);
-	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
+		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, displayHeight - y - 1);
+		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, x);
+	}
+	else if (displayOrientation == DisplayOrientation_0 || displayOrientation == DisplayOrientation_180)
+	{
+		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(x) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1));
+		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(y)); // start
+		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR + 1, SSD1289_VERT_RAM_ADDR_VA(y + height - 1)); // end
+
+		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, x);
+		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
+	}
 }
 
 

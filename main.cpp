@@ -12,6 +12,10 @@
 
 #include <Hardware/SSD1289/SSD1289.h>
 
+#include <Colors.h>
+
+#define ORIENT_270
+
 /* Timer_A PWM Configuration Parameter */
 const Timer_A_PWMConfig pwmConfig =
 {
@@ -68,12 +72,29 @@ int main(void)
     LCD_CTRL->OUT |= LCD_RESET;
     System.DelayMs(20);
 
-    ssd.SetOrientationSize(DisplayOrientation_0, 240, 320);
+#ifdef ORIENT_0
+    ssd.Init(DisplayOrientation_0, 240, 320);
+#elif defined ORIENT_90
+    ssd.Init(DisplayOrientation_90, 320, 240);
+#elif defined ORIENT_180
+    ssd.Init(DisplayOrientation_180, 240, 320);
+#elif defined ORIENT_270
+    ssd.Init(DisplayOrientation_270, 320, 240);
+#endif
 
-    ssd.Init();
+#if defined(ORIENT_0) || defined(ORIENT_180)
+    ssd.SetBounds(0, 0, 240, 320);
+    ssd.Fill(clRed, 240*320);
+#elif defined(ORIENT_90) || defined(ORIENT_270)
+    ssd.SetBounds(0, 0, 320, 240);
+#endif
 
-    ssd.SetBounds(10, 20, 10, 20);
-    ssd.Fill(0xffff, 10*20);
+    ssd.Fill(clRed, 240*320);
+
+    ssd.SetBounds(1, 2, 10, 20);
+    ssd.Fill(clWhite, 10*20);
+    ssd.SetBounds(1, 2, 10, 20);
+    ssd.Fill(clBlack, 10*20-55);
 
     while(1)
     {

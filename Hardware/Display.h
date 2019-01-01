@@ -31,11 +31,14 @@ private:
 	uint8_t fontHeight;
 	uint16_t fontStart;
 	const uint8_t* fontData;
+
+	uint8_t measureChar(char c);
+
+protected:
 	DisplayOrientation displayOrientation;
 	uint32_t displayWidth;
 	uint32_t displayHeight;
 
-	uint8_t measureChar(char c);
 public:
 	void SetFont(const uint8_t* font);
 

@@ -47,7 +47,7 @@ Buffer		.set r7
 
 	strh W0, [CtrlOut]         ; set Ctrl out ; WR Low, RS Low
 	strh Command, [DataOut]    ; set Data out
-	strh W1, [CtrlOut]         ; set Ctrl out ; WR High, RS Low
+	strh W1, [CtrlOut]         ; set Ctrl out ; WR High, RS High
 
 	orr W0, W0, Buffer         ; enable RS pin
 
