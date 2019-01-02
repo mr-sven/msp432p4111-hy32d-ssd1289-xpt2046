@@ -94,7 +94,7 @@ int main(void)
     ssd.setBounds(0, 0, 320, 240);
 #endif
 
-    ssd.fill(Color::Red, 240*320);
+    ssd.fill(Color::StdBlue, 240*320);
 
     ssd.setBounds(1, 2, 10, 20);
     ssd.fill(Color::White, 10*20);

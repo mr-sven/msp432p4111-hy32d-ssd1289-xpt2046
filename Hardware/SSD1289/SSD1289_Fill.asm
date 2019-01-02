@@ -50,7 +50,7 @@ Buffer		.set r7
 	strh W0, [CtrlOut]         ; set Ctrl out ; WR Low, RS Low
 	mov Buffer, #RAM_RW
 	strh Buffer, [DataOut]     ; set Data out
-	strh W1, [CtrlOut]         ; set Ctrl out ; WR High, RS Low
+	strh W1, [CtrlOut]         ; set Ctrl out ; WR Low, RS Low
 
 	ldrh Buffer, [Config, #RS_PIN_OFF] ; load RS pin
 	orr W0, W0, Buffer         ; enable RS pin

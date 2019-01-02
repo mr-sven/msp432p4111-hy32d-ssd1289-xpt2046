@@ -40,6 +40,7 @@ public: // IDisplay
     void pixel(uint32_t x, uint32_t y, uint16_t color);
 	void setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height);
     void blit16(const uint16_t* data, uint32_t count);
+    uint32_t drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color);
 };
 
 #endif /* HARDWARE_SSD1289_SSD1289_H_ */

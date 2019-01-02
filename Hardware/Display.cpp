@@ -10,19 +10,6 @@
 
 #include <string.h>
 
-#define FNTB(_x) fontData[_x]
-#define FNTW(_x) ((fontData[_x + 1] << 8) | fontData[_x])
-
-#define FONT_START_OFFSET			2
-#define FONT_HEIGHT_OFFSET			6
-#define FONT_HEADER_SIZE			8
-#define FONT_CHAR_WIDTH_OFF_SIZE	4
-
-#define FONT_START					FNTW(FONT_START_OFFSET)
-#define FONT_HEIGHT					FNTB(FONT_HEIGHT_OFFSET)
-#define FONT_CHAR_WIDTH(c)			FNTB(FONT_HEADER_SIZE + (c - fontStart) * FONT_CHAR_WIDTH_OFF_SIZE)
-#define FONT_CHAR_OFFSET(c)			FNTW(FONT_HEADER_SIZE + (c - fontStart) * FONT_CHAR_WIDTH_OFF_SIZE + 1)
-
 void Display::setFont(const uint8_t* font)
 {
 	fontData = font;

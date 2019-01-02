@@ -13,6 +13,7 @@ extern "C"
 {
 extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
 extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
+extern void SSD1289_DrawChar(SSD1289_Config * config, uint16_t color, uint8_t width, uint8_t height, const uint8_t * data);
 }
 
 #include <Hardware/SSD1289/SSD1289_cmd.h>
@@ -221,3 +222,18 @@ void SSD1289::blit16(const uint16_t* data, uint32_t count)
 
 }
 
+uint32_t SSD1289::drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color)
+{
+	if (c == 32)
+	{
+		return fontHeight >> 2;  // Space is 1/4 font height (yuk);
+	}
+
+	uint8_t width = FONT_CHAR_WIDTH(c);
+	uint32_t offset = FONT_CHAR_OFFSET(c);
+
+	setBounds(xx, yy, width, fontHeight);
+	SSD1289_DrawChar(&config, color, width, fontHeight, &fontData[offset]);
+
+	return width;
+}
