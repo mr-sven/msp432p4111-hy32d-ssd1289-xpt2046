@@ -102,20 +102,6 @@ extern "C"
 extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
 extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
 }
-/*
-void SSD1289_WriteReg(volatile uint16_t * dataOut, volatile uint16_t * ctlOut, uint16_t rsPin, uint16_t wrPin, uint16_t command, uint16_t data)
-{
-	*ctlOut &= ~(rsPin);
-	*dataOut = command;
-	*ctlOut &= ~(wrPin);
-	*ctlOut |= wrPin;
-	*ctlOut |= rsPin;
-
-	*dataOut = data;
-	*ctlOut &= ~(wrPin);
-	*ctlOut |= wrPin;
-}
-*/
 
 SSD1289::SSD1289(DIO_PORT_Interruptable_Type * dataPort, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t rsPin, uint16_t rdPin, uint16_t wrPin)
 {
@@ -173,93 +159,29 @@ void SSD1289::init(DisplayOrientation orientation, uint32_t width, uint32_t heig
 		SSD1289_WriteReg(&config, command, *addr++);
 	}
 
+	uint16_t entryModeReg = SSD1289_ENTRY_MODE_DFM(3);
+	uint16_t driverOutCtrlReg = SSD1289_DRV_OUT_CTRL_REV | SSD1289_DRV_OUT_CTRL_BGR | SSD1289_DRV_OUT_CTRL_MUX(319);
+
 	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Landscape_90)
 	{
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_TB|  // TB
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+		driverOutCtrlReg |= SSD1289_DRV_OUT_CTRL_TB;
 	}
 	else
 	{
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_RL|  // RL
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+		driverOutCtrlReg |= SSD1289_DRV_OUT_CTRL_RL;
 	}
 
 	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Portrait_180)
 	{
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
+		entryModeReg |= SSD1289_ENTRY_MODE_ID(3);
 	}
 	else
 	{
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_AM|		// rotate
-				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
+		entryModeReg |= SSD1289_ENTRY_MODE_AM | SSD1289_ENTRY_MODE_ID(2);
 	}
 
-	/*
-	switch(displayOrientation)
-	{
-	case DisplayOrientation_0:
-
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_TB|  // TB
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
-
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
-		break;
-	case DisplayOrientation_90:
-
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_TB|  // TB
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
-
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_AM|		// rotate
-				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
-
-		break;
-	case DisplayOrientation_180:
-
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_RL|  // RL
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
-
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
-
-		break;
-	case DisplayOrientation_270:
-
-		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
-				SSD1289_DRV_OUT_CTRL_REV| // REV
-				SSD1289_DRV_OUT_CTRL_BGR| // BGR
-				SSD1289_DRV_OUT_CTRL_RL|  // TB
-				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
-
-		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
-				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
-				SSD1289_ENTRY_MODE_AM|		// rotate
-				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
-		break;
-	}*/
+	SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL, driverOutCtrlReg);
+	SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE, entryModeReg);
 }
 
 void SSD1289::fill(uint16_t color, uint32_t count32)
