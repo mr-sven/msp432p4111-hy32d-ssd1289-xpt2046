@@ -43,55 +43,55 @@ buffer		.set r10
 
 	LDR		ctrlOut,	[config, #CTRL_OUT_OFF]	; load pointer to Ctrl out
 	LDR		dataOut,	[config, #DATA_OUT_OFF]	; load pointer to Data out
-	LDR		data,		[sp, #(0+32)] 				; Data from stack
+	LDR		data,		[sp, #(0+32)] 			; Data from stack
 
-	LDRH	w0,			[ctrlOut]					; load Ctrl data
+	LDRH	w0,			[ctrlOut]				; load Ctrl data
 
-	LDRH	buffer,		[config, #RS_PIN_OFF]		; load RS pin
-	BIC		wr,			w0,			buffer			; disable RS pin
-	LDRH	buffer, 	[config, #WR_PIN_OFF]		; load WR pin
-	BIC		wr,			wr,			buffer			; disable WR pin
+	LDRH	buffer,		[config, #RS_PIN_OFF]	; load RS pin
+	BIC		wr,			w0,			buffer		; disable RS pin
+	LDRH	buffer, 	[config, #WR_PIN_OFF]	; load WR pin
+	BIC		wr,			wr,			buffer		; disable WR pin
 
-	STRH	wr,			[ctrlOut]					; set Ctrl out ; WR Low, RS Low
+	STRH	wr,			[ctrlOut]				; set Ctrl out ; WR Low, RS Low
 	MOV		buffer,		#RAM_RW
-	STRH	buffer,		[dataOut]					; set Data out
-	STRH	w0,			[ctrlOut]					; set Ctrl out ; WR Low, RS Low
+	STRH	buffer,		[dataOut]				; set Data out
+	STRH	w0,			[ctrlOut]				; set Ctrl out ; WR Low, RS Low
 
-	LDRH	buffer, 	[config, #RS_PIN_OFF]		; load RS pin
-	ORR		wr,			wr,			buffer			; enable RS pin
+	LDRH	buffer, 	[config, #RS_PIN_OFF]	; load RS pin
+	ORR		wr,			wr,			buffer		; enable RS pin
 
-	LDRH	buffer,		[config, #RD_PIN_OFF]		; load RD pin
-	BIC		rd,			w0,			buffer			; disable RD pin
+	LDRH	buffer,		[config, #RD_PIN_OFF]	; load RD pin
+	BIC		rd,			w0,			buffer		; disable RD pin
 
-setWidth:
-	MOV		widthCnt,	#0							; set width counter
-	SUBS	height,		height,		#1				; decrement height
-	BEQ		endAsm
+l_setWidth:										; from now config (R0) will be used as width counter
+	MOV		widthCnt,	#0						; set width counter
+	SUBS	height,		height,		#1			; decrement height
+	BEQ		l_endAsm
 
-loadData:
-	LDRB	buffer,		[data],		#1				; load data and inc pointer
+l_loadData:
+	LDRB	buffer,		[data],		#1			; load data and inc pointer
 
-shiftData:
-	LSRS	buffer,		buffer,		#1				; right shift use carry
-	BCC		clear									; branch if carry is clear
-	STRH 	wr, 		[ctrlOut]					; set Ctrl out ; WR Low, RS High
-	STRH 	color,		[dataOut]					; set Data out
-	STRH 	w0,			[ctrlOut]					; set Ctrl out ; WR High, RS High
-	B		contAsm									; step over
+l_shiftData:
+	LSRS	buffer,		buffer,		#1			; right shift use carry
+	BCC		clear								; branch if carry is clear
+	STRH 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High
+	STRH 	color,		[dataOut]				; set Data out
+	STRH 	w0,			[ctrlOut]				; set Ctrl out ; WR High, RS High
+	B		l_contAsm							; step over
 
-clear:
-	STRH 	rd, 		[ctrlOut]					; set Ctrl out ; RD Low, RS High
-	STRH 	w0,			[ctrlOut]					; set Ctrl out ; RD High, RS High
+l_clear:										; dummy read to hold transparency
+	STRH 	rd, 		[ctrlOut]				; set Ctrl out ; RD Low, RS High
+	STRH 	w0,			[ctrlOut]				; set Ctrl out ; RD High, RS High
 
-contAsm:
-	ADD		widthCnt,	widthCnt,	#1				; inc width count
-	CMP		widthCnt,	width						; compare width and maxwidth
-	BEQ		setWidth								; reset width and load next data
-	TST		widthCnt,	#0x07						; test if all shifted out
-	BEQ		loadData								; load next data
-	B		shiftData								; shift out next data
+l_contAsm:
+	ADD		widthCnt,	widthCnt,	#1			; inc width count
+	CMP		widthCnt,	width					; compare width and maxwidth
+	BEQ		l_setWidth							; reset width and load next data
+	TST		widthCnt,	#0x07					; test if all shifted out
+	BEQ		l_loadData							; load next data
+	B		l_shiftData							; shift out next data
 
-endAsm:
+l_endAsm:
 	POP {r4-r10, lr}
 	BX lr
 	.endasmfunc
