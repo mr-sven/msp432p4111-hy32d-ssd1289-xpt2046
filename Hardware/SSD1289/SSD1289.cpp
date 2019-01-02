@@ -159,25 +159,24 @@ void SSD1289::init(DisplayOrientation orientation, uint32_t width, uint32_t heig
 		SSD1289_WriteReg(&config, command, *addr++);
 	}
 
-	uint16_t entryModeReg = SSD1289_ENTRY_MODE_DFM(3);
+	uint16_t entryModeReg = SSD1289_ENTRY_MODE_DFM(3) | SSD1289_ENTRY_MODE_ID(3);
 	uint16_t driverOutCtrlReg = SSD1289_DRV_OUT_CTRL_REV | SSD1289_DRV_OUT_CTRL_BGR | SSD1289_DRV_OUT_CTRL_MUX(319);
 
-	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Landscape_90)
+	switch (displayOrientation)
 	{
+	case DisplayOrientation::Portrait:
 		driverOutCtrlReg |= SSD1289_DRV_OUT_CTRL_TB;
-	}
-	else
-	{
+		break;
+	case DisplayOrientation::Landscape_90:
+		driverOutCtrlReg |= SSD1289_DRV_OUT_CTRL_TB | SSD1289_DRV_OUT_CTRL_RL;
+		entryModeReg |= SSD1289_ENTRY_MODE_AM;
+		break;
+	case DisplayOrientation::Portrait_180:
 		driverOutCtrlReg |= SSD1289_DRV_OUT_CTRL_RL;
-	}
-
-	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Portrait_180)
-	{
-		entryModeReg |= SSD1289_ENTRY_MODE_ID(3);
-	}
-	else
-	{
-		entryModeReg |= SSD1289_ENTRY_MODE_AM | SSD1289_ENTRY_MODE_ID(2);
+		break;
+	case DisplayOrientation::Landscape_270:
+		entryModeReg |= SSD1289_ENTRY_MODE_AM;
+		break;
 	}
 
 	SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL, driverOutCtrlReg);
@@ -191,24 +190,24 @@ void SSD1289::fill(uint16_t color, uint32_t count32)
 
 void SSD1289::setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
+	// swap values on landscape
 	if (displayOrientation == DisplayOrientation::Landscape_90 || displayOrientation == DisplayOrientation::Landscape_270)
 	{
-		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(displayHeight - y - height) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(displayHeight - y - 1));
-		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(x)); // start
-		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR + 1, SSD1289_VERT_RAM_ADDR_VA(x + width - 1)); // end
+		uint32_t tmp = x;
+		x = y;
+		y = tmp;
 
-		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, displayHeight - y - 1);
-		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, x);
+		tmp = height;
+		height = width;
+		width = tmp;
 	}
-	else if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Portrait_180)
-	{
-		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(x) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1));
-		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(y)); // start
-		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR + 1, SSD1289_VERT_RAM_ADDR_VA(y + height - 1)); // end
 
-		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, x);
-		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
-	}
+	SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(x) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1));
+	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(y)); // start
+	SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR + 1, SSD1289_VERT_RAM_ADDR_VA(y + height - 1)); // end
+
+	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, x);
+	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
 }
 
 
