@@ -7,7 +7,12 @@
 
 #include <core/IO.h>
 
-void IO_::SetupOutputs(void)
+/* DriverLib Includes */
+#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
+
+#include <Board.h>
+
+void IO_::setupOutputs(void)
 {
     MAP_GPIO_setAsOutputPin(GPIO_PORT_PA, PIN_ALL16);
     MAP_GPIO_setAsOutputPin(GPIO_PORT_PB, PIN_ALL16);

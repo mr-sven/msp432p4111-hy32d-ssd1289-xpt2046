@@ -8,19 +8,16 @@
 #ifndef CORE_SYSTEM_H_
 #define CORE_SYSTEM_H_
 
-/* DriverLib Includes */
-#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
-
-#include <Board.h>
+#include <stdint.h>
 
 class System_
 {
 public:
-	static void SetupCS(void);
-	static void SetupSystickTimer(void);
-	static uint32_t Millis(void);
-	static void StringToHex(char * dest, uint8_t * data, int length);
-	static void DelayMs(const unsigned msec);
+	static void setupCS(void);
+	static void setupSystickTimer(void);
+	static uint32_t millis(void);
+	static void stringToHex(char * dest, uint8_t * data, int length);
+	static void delayMs(const unsigned msec);
 };
 
 extern System_ System;

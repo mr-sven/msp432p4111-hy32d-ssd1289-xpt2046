@@ -7,7 +7,12 @@
 
 #include <core/System.h>
 
-void System_::SetupCS(void)
+/* DriverLib Includes */
+#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
+
+#include <Board.h>
+
+void System_::setupCS(void)
 {
 
     // Before we start we have to change VCORE to 1 to support the 48MHz frequency
@@ -23,7 +28,7 @@ void System_::SetupCS(void)
     MAP_CS_initClockSignal(CS_ACLK, CS_REFOCLK_SELECT, CS_CLOCK_DIVIDER_1);
 }
 
-void System_::SetupSystickTimer(void)
+void System_::setupSystickTimer(void)
 {
     // Configuring SysTick to trigger at 1 ms
     MAP_SysTick_enableModule();
@@ -37,7 +42,7 @@ extern "C" void SysTick_Handler(void)
 	SysTickCntMsec++;
 }
 
-uint32_t System_::Millis(void)
+uint32_t System_::millis(void)
 {
 	return SysTickCntMsec;
 }
@@ -48,7 +53,7 @@ uint32_t millis(void)
 }
 
 const char hex[] = {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
-void System_::StringToHex(char * dest, uint8_t * data, int length)
+void System_::stringToHex(char * dest, uint8_t * data, int length)
 {
 	while (length > 0)
 	{
@@ -60,7 +65,7 @@ void System_::StringToHex(char * dest, uint8_t * data, int length)
 }
 
 
-void System_::DelayMs(const unsigned msec)
+void System_::delayMs(const unsigned msec)
 {
     const unsigned wu = SysTickCntMsec + msec;
 

@@ -8,15 +8,10 @@
 #ifndef CORE_IO_H_
 #define CORE_IO_H_
 
-/* DriverLib Includes */
-#include <ti/devices/msp432p4xx/driverlib/driverlib.h>
-
-#include <Board.h>
-
 class IO_
 {
 public:
-	static void SetupOutputs(void);
+	static void setupOutputs(void);
 };
 
 extern IO_ IO;

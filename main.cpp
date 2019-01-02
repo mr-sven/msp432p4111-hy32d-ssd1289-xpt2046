@@ -13,6 +13,7 @@
 #include <Hardware/SSD1289/SSD1289.h>
 
 #include <Colors.h>
+#include <Board.h>
 
 #define ORIENT_270
 
@@ -47,13 +48,13 @@ int main(void)
     MAP_WDT_A_holdTimer();
 
     // Setup Clock Sources
-    System.SetupCS();
+    System.setupCS();
 
     // Setup System Tick Timer
-    System.SetupSystickTimer();
+    System.setupSystickTimer();
 
     // Reset Output
-    IO.SetupOutputs();
+    IO.setupOutputs();
 
     // Disable global interrupt
     MAP_Interrupt_disableMaster();
@@ -68,33 +69,33 @@ int main(void)
 
     LCD_CTRL->DIR |= LCD_RESET;
     LCD_CTRL->OUT &= ~(LCD_RESET);
-    System.DelayMs(20);
+    System.delayMs(20);
     LCD_CTRL->OUT |= LCD_RESET;
-    System.DelayMs(20);
+    System.delayMs(20);
 
 #ifdef ORIENT_0
-    ssd.Init(DisplayOrientation_0, 240, 320);
+    ssd.init(DisplayOrientation::Portrait, 240, 320);
 #elif defined ORIENT_90
-    ssd.Init(DisplayOrientation_90, 320, 240);
+    ssd.init(DisplayOrientation::Landscape_90, 320, 240);
 #elif defined ORIENT_180
-    ssd.Init(DisplayOrientation_180, 240, 320);
+    ssd.init(DisplayOrientation::Portrait_180, 240, 320);
 #elif defined ORIENT_270
-    ssd.Init(DisplayOrientation_270, 320, 240);
+    ssd.init(DisplayOrientation::Landscape_270, 320, 240);
 #endif
 
 #if defined(ORIENT_0) || defined(ORIENT_180)
-    ssd.SetBounds(0, 0, 240, 320);
-    ssd.Fill(clRed, 240*320);
+    ssd.setBounds(0, 0, 240, 320);
+    ssd.fill(clRed, 240*320);
 #elif defined(ORIENT_90) || defined(ORIENT_270)
-    ssd.SetBounds(0, 0, 320, 240);
+    ssd.setBounds(0, 0, 320, 240);
 #endif
 
-    ssd.Fill(clRed, 240*320);
+    ssd.fill(Color::Red, 240*320);
 
-    ssd.SetBounds(1, 2, 10, 20);
-    ssd.Fill(clWhite, 10*20);
-    ssd.SetBounds(1, 2, 10, 20);
-    ssd.Fill(clBlack, 10*20-55);
+    ssd.setBounds(1, 2, 10, 20);
+    ssd.fill(Color::White, 10*20);
+    ssd.setBounds(1, 2, 10, 20);
+    ssd.fill(Color::Black, 10*20-55);
 
     while(1)
     {

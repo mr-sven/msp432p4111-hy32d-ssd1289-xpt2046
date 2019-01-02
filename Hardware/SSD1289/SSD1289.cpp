@@ -138,10 +138,10 @@ SSD1289::SSD1289(DIO_PORT_Interruptable_Type * dataPort, DIO_PORT_Interruptable_
 	config.ctrlOut = &ctrlPort->OUT;
 }
 
-void SSD1289::Init(DisplayOrientation orientation, uint32_t width, uint32_t height)
+void SSD1289::init(DisplayOrientation orientation, uint32_t width, uint32_t height)
 {
 	// call parent
-	Display::Init(orientation, width, height);
+	Display::init(orientation, width, height);
 
 	// set data direction
 	*config.dataDir = 0xffff;
@@ -165,36 +165,46 @@ void SSD1289::Init(DisplayOrientation orientation, uint32_t width, uint32_t heig
 		// execute delay
 		if(command == _DELAY_MS)
 		{
-			System.DelayMs(*addr++);
+			System.delayMs(*addr++);
 			continue;
 		}
-/*
-		uint16_t data = *addr++;
 
-		if(command == SSD1289_DRV_OUT_CTRL)
-		{
-			switch(displayOrientation)
-			{
-			case DisplayOrientation_0:
-				data &= ~(SSD1289_DRV_OUT_CTRL_RL);
-				data |= SSD1289_DRV_OUT_CTRL_TB;
-				break;
-			case DisplayOrientation_90:
-				break;
-			case DisplayOrientation_180:
-				data &= ~(SSD1289_DRV_OUT_CTRL_TB);
-				data |= SSD1289_DRV_OUT_CTRL_RL;
-				break;
-			case DisplayOrientation_270:
-				break;
-			}
-		}*/
-
+		// write register default
 		SSD1289_WriteReg(&config, command, *addr++);
 	}
 
-	uint16_t data = *addr++;
+	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Landscape_90)
+	{
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_TB|  // TB
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+	}
+	else
+	{
+		SSD1289_WriteReg(&config, SSD1289_DRV_OUT_CTRL,
+				SSD1289_DRV_OUT_CTRL_REV| // REV
+				SSD1289_DRV_OUT_CTRL_BGR| // BGR
+				SSD1289_DRV_OUT_CTRL_RL|  // RL
+				SSD1289_DRV_OUT_CTRL_MUX(319));	// Max LCD Line
+	}
 
+	if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Portrait_180)
+	{
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_ID(3));	// Horizontal: increment; Vertical: increment
+	}
+	else
+	{
+		SSD1289_WriteReg(&config, SSD1289_ENTRY_MODE,
+				SSD1289_ENTRY_MODE_DFM(3)|	// 65k color (POR)
+				SSD1289_ENTRY_MODE_AM|		// rotate
+				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
+	}
+
+	/*
 	switch(displayOrientation)
 	{
 	case DisplayOrientation_0:
@@ -249,17 +259,17 @@ void SSD1289::Init(DisplayOrientation orientation, uint32_t width, uint32_t heig
 				SSD1289_ENTRY_MODE_AM|		// rotate
 				SSD1289_ENTRY_MODE_ID(2));	// Horizontal: decrement; Vertical: increment
 		break;
-	}
+	}*/
 }
 
-void SSD1289::Fill(uint16_t color, uint32_t count32)
+void SSD1289::fill(uint16_t color, uint32_t count32)
 {
 	SSD1289_Fill(&config, color, count32);
 }
 
-void SSD1289::SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
+void SSD1289::setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 {
-	if (displayOrientation == DisplayOrientation_90 || displayOrientation == DisplayOrientation_270)
+	if (displayOrientation == DisplayOrientation::Landscape_90 || displayOrientation == DisplayOrientation::Landscape_270)
 	{
 		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(displayHeight - y - height) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(displayHeight - y - 1));
 		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(x)); // start
@@ -268,7 +278,7 @@ void SSD1289::SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_X_ADDR_CNT, displayHeight - y - 1);
 		SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, x);
 	}
-	else if (displayOrientation == DisplayOrientation_0 || displayOrientation == DisplayOrientation_180)
+	else if (displayOrientation == DisplayOrientation::Portrait || displayOrientation == DisplayOrientation::Portrait_180)
 	{
 		SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(x) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1));
 		SSD1289_WriteReg(&config, SSD1289_VERT_RAM_ADDR, SSD1289_VERT_RAM_ADDR_VA(y)); // start
@@ -280,17 +290,17 @@ void SSD1289::SetBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 }
 
 
-void SSD1289::Rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color)
+void SSD1289::rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color)
 {
 
 }
 
-void SSD1289::Pixel(uint32_t x, uint32_t y, uint16_t color)
+void SSD1289::pixel(uint32_t x, uint32_t y, uint16_t color)
 {
 
 }
 
-void SSD1289::Blit16(const uint16_t* d, uint32_t count, bool cont)
+void SSD1289::blit16(const uint16_t* data, uint32_t count, bool contData)
 {
 
 }
