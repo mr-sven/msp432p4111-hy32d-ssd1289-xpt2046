@@ -15,6 +15,8 @@
 #include <Colors.h>
 #include <Board.h>
 
+#include <Fonts/Liberation_Sans21x23.h>
+
 #define ORIENT_270
 
 /* Timer_A PWM Configuration Parameter */
@@ -98,6 +100,9 @@ int main(void)
     ssd.fill(Color::White, 10*20);
     ssd.setBounds(1, 2, 10, 20);
     ssd.fill(Color::Black, 10*20-55);
+
+    ssd.setFont(Liberation_Sans21x23);
+    ssd.drawString("hallo", 30, 20, Color::Black);
 
     while(1)
     {

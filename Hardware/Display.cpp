@@ -13,11 +13,21 @@
 #define FNTB(_x) fontData[_x]
 #define FNTW(_x) ((fontData[_x + 1] << 8) | fontData[_x])
 
+#define FONT_START_OFFSET			2
+#define FONT_HEIGHT_OFFSET			6
+#define FONT_HEADER_SIZE			8
+#define FONT_CHAR_WIDTH_OFF_SIZE	4
+
+#define FONT_START					FNTW(FONT_START_OFFSET)
+#define FONT_HEIGHT					FNTB(FONT_HEIGHT_OFFSET)
+#define FONT_CHAR_WIDTH(c)			FNTB(FONT_HEADER_SIZE + (c - fontStart) * FONT_CHAR_WIDTH_OFF_SIZE)
+#define FONT_CHAR_OFFSET(c)			FNTW(FONT_HEADER_SIZE + (c - fontStart) * FONT_CHAR_WIDTH_OFF_SIZE + 1)
+
 void Display::setFont(const uint8_t* font)
 {
 	fontData = font;
-	fontStart = FNTW(2);
-	fontHeight = FNTB(6);
+	fontStart = FONT_START;
+	fontHeight = FONT_HEIGHT;
 }
 
 uint32_t Display::drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color)
@@ -27,18 +37,13 @@ uint32_t Display::drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color)
 		return fontHeight >> 2;  // Space is 1/4 font height (yuk);
 	}
 
-	uint32_t offset;
-	uint8_t width;
-	offset = (c - fontStart);
-	offset = offset * 4;
-	offset += 8;
-	width = FNTB(offset);
-	offset = FNTW(offset + 1);
+	uint8_t width = FONT_CHAR_WIDTH(c);
+	uint32_t offset = FONT_CHAR_OFFSET(c);
 
 	for (int y = 0; y < fontHeight; y++)
 	{
 		uint8_t p = 0;
-		for (uint8_t x = 0; x < (uint8_t)width; x++)
+		for (uint8_t x = 0; x < width; x++)
 		{
 			if (x % 8 == 0)
 			{
@@ -104,9 +109,8 @@ void Display::label(const char* s, TextAlign align, uint32_t x, uint32_t y, uint
 			continue;
 		}
 
-		uint32_t cOffset = (c - fontStart) * 4 + 8;
-		uint8_t cWidth = FNTB(cOffset);
-		cOffset = FNTW(cOffset + 1);
+		uint32_t cOffset = FONT_CHAR_OFFSET(c);
+		uint8_t cWidth = FONT_CHAR_WIDTH(c);
 		uint16_t * hLineBufP = hLineBuf;
 
 		//hLineBufP += (fontHeight * cWidth) - cWidth; // move data pointer to start of last line
@@ -129,7 +133,7 @@ void Display::label(const char* s, TextAlign align, uint32_t x, uint32_t y, uint
 		}
 
 		setBounds(start, y, cWidth, fontHeight);
-		blit16(hLineBuf, fontHeight * cWidth, false);
+		blit16(hLineBuf, fontHeight * cWidth);
 		rect(start + cWidth, y, 1, fontHeight, bgColor);
 
 		start += cWidth + 1;
@@ -143,11 +147,7 @@ uint8_t Display::measureChar(char c)
 		return fontHeight >> 2;  // Space is 1/4 font height (yuk);
 	}
 
-	uint32_t offset;
-	offset = (c - fontStart);
-	offset = offset * 4;
-	offset += 8;
-	return FNTB(offset);
+	return FONT_CHAR_WIDTH(c);
 }
 
 uint32_t Display::measureString(const char* s, uint32_t len)
