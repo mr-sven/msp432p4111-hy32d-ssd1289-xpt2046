@@ -24,37 +24,37 @@ WR_PIN_OFF		.set  0x16
 	.global SSD1289_WriteReg
 SSD1289_WriteReg: .asmfunc
 
-Config		.set r0
-Command		.set r1
-Data		.set r2
-CtrlOut		.set r3
-DataOut		.set r4
-W0			.set r5
-W1			.set r6
-Buffer		.set r7
+config		.set r0
+command		.set r1
+data		.set r2
+ctrlOut		.set r3
+dataOut		.set r4
+w0			.set r5
+w1			.set r6
+buffer		.set r7
 
-	push {r4-r7,lr} ; 5 regs are pushed, SP is decremented by 5*4 = 20 bytes
+	PUSH	{r4-r7,lr} ; 5 regs are pushed, SP is decremented by 5*4 = 20 bytes
 
-	ldr CtrlOut, [Config, #CTRL_OUT_OFF] ; load pointer to Ctrl out
-	ldr DataOut, [Config, #DATA_OUT_OFF]  ; load pointer to Data out
+	LDR		ctrlOut,	[config, #CTRL_OUT_OFF]	; load pointer to Ctrl out
+	LDR		dataOut,	[config, #DATA_OUT_OFF]	; load pointer to Data out
 
-	ldrh W1, [CtrlOut]         ; load Ctrl data
+	LDRH	w1,			[ctrlOut]				; load Ctrl data
 
-	ldrh Buffer, [Config, #WR_PIN_OFF] ; load WR pin
-	bic W0, W1, Buffer         ; disable WR pin
-	ldrh Buffer, [Config, #RS_PIN_OFF] ; load RS pin
-	bic W0, W0, Buffer         ; disable RS pin
+	LDRH	buffer,		[config, #WR_PIN_OFF]	; load WR pin
+	BIC		w0,			w1,			buffer		; disable WR pin
+	LDRH	buffer,		[config, #RS_PIN_OFF]	; load RS pin
+	BIC		w0,			w0,			buffer		; disable RS pin
 
-	strh W0, [CtrlOut]         ; set Ctrl out ; WR Low, RS Low
-	strh Command, [DataOut]    ; set Data out
-	strh W1, [CtrlOut]         ; set Ctrl out ; WR High, RS High
+	STRH	w0,			[ctrlOut]				; set Ctrl out ; WR Low, RS Low
+	STRH	command,	[dataOut]				; set Data out
+	STRH	w1,			[ctrlOut]				; set Ctrl out ; WR High, RS High
 
-	orr W0, W0, Buffer         ; enable RS pin
+	ORR		w0,			w0,			buffer		; enable RS pin
 
-	strh W0, [CtrlOut]         ; set Ctrl out ; WR Low, RS High
-	strh Data, [DataOut]       ; set Data out
-	strh W1, [CtrlOut]         ; set Ctrl out ; WR High, RS High
+	STRH	w0,			[ctrlOut]				; set Ctrl out ; WR Low, RS High
+	STRH	data,		[dataOut]				; set Data out
+	STRH	w1,			[ctrlOut]				; set Ctrl out ; WR High, RS High
 
-	pop {r4-r7,lr}
-	bx lr
+	POP		{r4-r7,lr}
+	BX		lr
 	.endasmfunc

@@ -73,7 +73,7 @@ l_loadData:
 
 l_shiftData:
 	LSRS	buffer,		buffer,		#1			; right shift use carry
-	BCC		clear								; branch if carry is clear
+	BCC		l_clear								; branch if carry is clear
 	STRH 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High
 	STRH 	color,		[dataOut]				; set Data out
 	STRH 	w0,			[ctrlOut]				; set Ctrl out ; WR High, RS High
@@ -92,6 +92,6 @@ l_contAsm:
 	B		l_shiftData							; shift out next data
 
 l_endAsm:
-	POP {r4-r10, lr}
-	BX lr
+	POP		{r4-r10, lr}
+	BX		lr
 	.endasmfunc
