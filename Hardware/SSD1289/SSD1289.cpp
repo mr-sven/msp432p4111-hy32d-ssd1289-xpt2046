@@ -7,9 +7,15 @@
 
 #include <Hardware/SSD1289/SSD1289.h>
 
-#include <Hardware/SSD1289/SSD1289_cmd.h>
-
 #include <Core/System.h>
+
+extern "C"
+{
+extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
+extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
+}
+
+#include <Hardware/SSD1289/SSD1289_cmd.h>
 
 static const uint16_t ssd1289_init [] = {
 
@@ -95,13 +101,6 @@ static const uint16_t ssd1289_init [] = {
 
 	_END
 };
-
-
-extern "C"
-{
-extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
-extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
-}
 
 SSD1289::SSD1289(DIO_PORT_Interruptable_Type * dataPort, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t rsPin, uint16_t rdPin, uint16_t wrPin)
 {
@@ -193,13 +192,8 @@ void SSD1289::setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	// swap values on landscape
 	if (displayOrientation == DisplayOrientation::Landscape_90 || displayOrientation == DisplayOrientation::Landscape_270)
 	{
-		uint32_t tmp = x;
-		x = y;
-		y = tmp;
-
-		tmp = height;
-		height = width;
-		width = tmp;
+		_swap_uint32_t(x, y);
+		_swap_uint32_t(height, width);
 	}
 
 	SSD1289_WriteReg(&config, SSD1289_HORIZ_RAM_ADDR_POS, SSD1289_HORIZ_RAM_ADDR_POS_HSA(x) | SSD1289_HORIZ_RAM_ADDR_POS_HSE(x + width - 1));
@@ -210,18 +204,19 @@ void SSD1289::setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 	SSD1289_WriteReg(&config, SSD1289_SET_GDDRAM_Y_ADDR_CNT, y);
 }
 
-
 void SSD1289::rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color)
 {
-
+	setBounds(x, y, width + x - 1, height + y - 1);
+	SSD1289_Fill(&config, color, width * height);
 }
 
 void SSD1289::pixel(uint32_t x, uint32_t y, uint16_t color)
 {
-
+	setBounds(x, y, 1, 1);
+	SSD1289_Fill(&config, color, 1);
 }
 
-void SSD1289::blit16(const uint16_t* data, uint32_t count, bool contData)
+void SSD1289::blit16(const uint16_t* data, uint32_t count)
 {
 
 }

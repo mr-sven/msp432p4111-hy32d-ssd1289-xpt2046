@@ -10,6 +10,10 @@
 
 #include <stdint.h>
 
+#ifndef _swap_uint32_t
+#define _swap_uint32_t(a, b) { uint32_t t = a; a = b; b = t; }
+#endif
+
 enum class TextAlign
 {
 	Left,
@@ -66,7 +70,7 @@ public: // abstract function
     virtual void rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color) = 0;
 	virtual void pixel(uint32_t x, uint32_t y, uint16_t color) = 0;
 	virtual void setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
-	virtual void blit16(const uint16_t* data, uint32_t count, bool contData) = 0;
+	virtual void blit16(const uint16_t* data, uint32_t count) = 0;
 };
 
 #endif /* HARDWARE_DISPLAY_H_ */

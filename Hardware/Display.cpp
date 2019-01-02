@@ -13,10 +13,6 @@
 #define FNTB(_x) fontData[_x]
 #define FNTW(_x) ((fontData[_x + 1] << 8) | fontData[_x])
 
-#ifndef _swap_uint32_t
-#define _swap_uint32_t(a, b) { uint32_t t = a; a = b; b = t; }
-#endif
-
 void Display::setFont(const uint8_t* font)
 {
 	fontData = font;
