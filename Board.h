@@ -15,7 +15,7 @@
 #define EVALUATOR3(x,y,z)    PASTER3(x,y,z)
 
 #define PWM_PERIOD           (CS_48MHZ/5000)
-#define LED_PWM              0.9
+#define LED_PWM              1.0 // 0.3
 
 #define JTAG_ENABLED
 

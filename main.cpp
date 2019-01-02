@@ -62,11 +62,13 @@ int main(void)
     // Enable global interrupt
     MAP_Interrupt_enableMaster();
 
+    // init PWM for background light
     setupDisplayLEDPWM();
 
 
     SSD1289 ssd(LCD_DATA, LCD_CTRL, LCD_CS, LCD_RS, LCD_RD, LCD_WR);
 
+    // display Reset
     LCD_CTRL->DIR |= LCD_RESET;
     LCD_CTRL->OUT &= ~(LCD_RESET);
     System.delayMs(20);
