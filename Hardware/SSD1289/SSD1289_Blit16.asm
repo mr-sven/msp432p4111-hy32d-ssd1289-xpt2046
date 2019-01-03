@@ -22,12 +22,13 @@ WR_PIN_OFF		.set  0x16
 RAM_RW			.set  0x0022
 
 ;############################################################################################
-; extern void SSD1289_Fill(SSD1289_config * config, uint16_t color, uint32_t count32);
-	.global SSD1289_Fill
-SSD1289_Fill: .asmfunc
+; extern void SSD1289_Blit16(SSD1289_config * config, const uint16_t* data, uint32_t count);
+	.global SSD1289_Blit16
+SSD1289_Blit16: .asmfunc
 
 config		.set r0
-color		.set r1
+dataW		.set r0
+data		.set r1
 count		.set r2
 ctrlOut		.set r3
 dataOut		.set r4
@@ -59,8 +60,9 @@ buffer		.set r7
 	BEQ		l_fast
 
 l_slowLoop: ; Slow data loop
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		SUBS	buffer,	buffer,		#1
@@ -72,43 +74,51 @@ l_fast: ; Fast data
 
 l_fastLoop: ; fast data loop
 		; ----------------- Data 0 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 1 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 2 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 3 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 4 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 5 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 6 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 7 -----------------
+		LDRH	dataW,	[data],		#2			; load data
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
+		STRH	dataW,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		SUBS	count,	count,		#1

@@ -9,14 +9,15 @@
 
 #include <Core/System.h>
 
+#include <Hardware/SSD1289/SSD1289_cmd.h>
+
 extern "C"
 {
 extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
 extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
 extern void SSD1289_DrawChar(SSD1289_Config * config, uint16_t color, uint8_t width, uint8_t height, const uint8_t * data);
+extern void SSD1289_Blit16(SSD1289_Config * config, const uint16_t* data, uint32_t count);
 }
-
-#include <Hardware/SSD1289/SSD1289_cmd.h>
 
 static const uint16_t ssd1289_init [] = {
 
@@ -207,7 +208,7 @@ void SSD1289::setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height)
 
 void SSD1289::rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color)
 {
-	setBounds(x, y, width + x - 1, height + y - 1);
+	setBounds(x, y, width, height);
 	SSD1289_Fill(&config, color, width * height);
 }
 
@@ -219,7 +220,7 @@ void SSD1289::pixel(uint32_t x, uint32_t y, uint16_t color)
 
 void SSD1289::blit16(const uint16_t* data, uint32_t count)
 {
-
+	SSD1289_Blit16(&config, data, count);
 }
 
 uint32_t SSD1289::drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color)
