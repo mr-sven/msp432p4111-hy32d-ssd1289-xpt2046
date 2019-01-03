@@ -102,11 +102,11 @@ int main(void)
     ssd.fill(Color::Black, 10*20-55);
 
     ssd.setFont(Liberation_Sans21x23);
-    ssd.drawString("hallo", 30, 20, Color::Black);
+    ssd.drawString("hello", 30, 20, Color::Black);
 
+    ssd.label("Hello", TextAlign::Center, 100, 100, 100, Color::Magenta, Color::YellowGold);
     while(1)
     {
-
         MAP_PCM_gotoLPM0();
     }
 }
