@@ -1,12 +1,13 @@
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
 
-/* DriverLib Includes */
+// DriverLib Includes
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
-/* Standard Includes */
+// Standard Includes
 #include <stdint.h>
 #include <stdbool.h>
 
-/* Core Includes */
+// Core Includes
 #include <Core/System.h>
 #include <Core/IO.h>
 
@@ -19,7 +20,7 @@
 
 #define ORIENT_270
 
-/* Timer_A PWM Configuration Parameter */
+// Timer_A PWM Configuration Parameter
 const Timer_A_PWMConfig pwmConfig =
 {
 	.clockSource = TIMER_A_CLOCKSOURCE_SMCLK,

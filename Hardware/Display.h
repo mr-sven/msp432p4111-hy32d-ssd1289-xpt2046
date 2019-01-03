@@ -1,8 +1,12 @@
-/*
- * Display.h
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file Display.h
  *
- *  Created on: 04.11.2018
- *      Author: Sven
+ * @brief System specific calls
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
 
 #ifndef HARDWARE_DISPLAY_H_

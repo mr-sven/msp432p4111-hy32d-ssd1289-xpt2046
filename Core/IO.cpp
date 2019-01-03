@@ -1,13 +1,17 @@
-/*
- * IO.cpp
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file IO.cpp
  *
- *  Created on: 11.05.2018
- *      Author: Sven
+ * @brief Basic IO calls
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
 
 #include <core/IO.h>
 
-/* DriverLib Includes */
+// DriverLib Includes
 #include <ti/devices/msp432p4xx/driverlib/driverlib.h>
 
 #include <Board.h>
