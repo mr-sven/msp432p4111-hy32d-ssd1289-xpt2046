@@ -1,8 +1,12 @@
-/*
- * SSD1289.cpp
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file SSD1289.cpp
  *
- *  Created on: 26.12.2018
- *      Author: Sven
+ * @brief SSD1289 accessing functionalities
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
 
 #include <Hardware/SSD1289/SSD1289.h>
@@ -13,12 +17,46 @@
 
 extern "C"
 {
+/**
+ * Writes data to a specified SSD1289 register
+ *
+ * @param config pointer to the config struct
+ * @param command register address to write
+ * @param data the date for the register
+ */
 extern void SSD1289_WriteReg(SSD1289_Config * config, uint16_t command, uint16_t data);
+
+/**
+ * Fill the area specified by setBounds with color
+ *
+ * @param config pointer to the config struct
+ * @param color the color
+ * @param count32 number of pixels
+ */
 extern void SSD1289_Fill(SSD1289_Config * config, uint16_t color, uint32_t count32);
+
+/**
+ * draws the char data at the specified position
+ *
+ * @param config pointer to the config struct
+ * @param color the color of the text
+ * @param width the width of the char
+ * @param height the height of the char
+ * @param data ponter to the data of the char
+ */
 extern void SSD1289_DrawChar(SSD1289_Config * config, uint16_t color, uint8_t width, uint8_t height, const uint8_t * data);
+
+/**
+ * Write data to display RAM
+ *
+ * @param config pointer to the config struct
+ * @param data pointer to the data
+ * @param count number of elements
+ */
 extern void SSD1289_Blit16(SSD1289_Config * config, const uint16_t* data, uint32_t count);
 }
 
+/// initializaton sequence
 static const uint16_t ssd1289_init [] = {
 
 	SSD1289_OSC_START, SSD1289_OSC_START_OSCEN,		// Enable LCD Oscillator

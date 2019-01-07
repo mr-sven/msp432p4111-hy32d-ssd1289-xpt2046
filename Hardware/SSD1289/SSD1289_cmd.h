@@ -1,15 +1,26 @@
-/*
- * SSD1289_cmd.h
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file SSD1289_cmd.h
  *
- *	Created on: 26.12.2018
- *		Author: Sven
+ * @brief SSD1289 command table
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
 
 #ifndef HARDWARE_SSD1289_SSD1289_CMD_H_
 #define HARDWARE_SSD1289_SSD1289_CMD_H_
 
+/// used for executing delays in init sequence
 #define _DELAY_MS							0xFF00
+
+/// marks the end of the init sequence
 #define _END								0xFFFF
+
+/**
+ * Reference Datasheed SSD1289 from Solomon Systech Limited
+ */
 
 #define SSD1289_OSC_START					0x0000
 #define SSD1289_OSC_START_OSCEN				BIT(0)

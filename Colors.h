@@ -1,10 +1,13 @@
-/*
- * Colors.h
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file Colors.h
  *
- * Created: 20.09.2013 19:47:52
- *  Author: gg
- */ 
-
+ * @brief Color Lib
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
+ */
 
 #ifndef COLORS_H_
 #define COLORS_H_

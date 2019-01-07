@@ -1,3 +1,12 @@
+; Copyright 2019 by Sven Fabricius, see LICENSE.txt
+;
+; @file SSD1289_Fill.asm
+;
+; @brief Fill the area specified by setBounds with color
+;
+; @author Sven Fabricius
+; Contact: Sven.Fabricius@livediesel.de
+
 ;typedef struct _SSD1289_config
 ;{
 ;	volatile uint16_t * dataOut; + 0

@@ -1,10 +1,13 @@
-/*
- * Display.cpp
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file Display.cpp
  *
- *  Created on: 04.11.2018
- *      Author: Sven
+ * @brief Display accessing functionalities
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
-
 
 #include <Hardware/Display.h>
 

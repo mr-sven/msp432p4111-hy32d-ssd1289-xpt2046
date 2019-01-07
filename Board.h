@@ -1,8 +1,12 @@
-/*
- * Board.h
+// Copyright 2019 by Sven Fabricius, see LICENSE.txt
+/**
+ * @file Board.h
  *
- *  Created on: 11.05.2018
- *      Author: Sven
+ * @brief Board Config
+ *
+ * @author Sven Fabricius
+ * Contact: Sven.Fabricius@livediesel.de
+ *
  */
 
 #ifndef BOARD_H_

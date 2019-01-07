@@ -1,3 +1,12 @@
+; Copyright 2019 by Sven Fabricius, see LICENSE.txt
+;
+; @file SSD1289_DrawChar.asm
+;
+; @brief draws the char data at the specified position
+;
+; @author Sven Fabricius
+; Contact: Sven.Fabricius@livediesel.de
+
 ;typedef struct _SSD1289_Config
 ;{
 ;	volatile uint16_t * dataOut; + 0

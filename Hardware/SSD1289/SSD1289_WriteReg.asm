@@ -1,3 +1,12 @@
+; Copyright 2019 by Sven Fabricius, see LICENSE.txt
+;
+; @file SSD1289_WriteReg.asm
+;
+; @brief Writes data to a specified SSD1289 register
+;
+; @author Sven Fabricius
+; Contact: Sven.Fabricius@livediesel.de
+
 ;typedef struct _SSD1289_Config
 ;{
 ;	volatile uint16_t * dataOut; + 0

@@ -161,22 +161,106 @@ public:
 	 */
 	uint32_t measureString(const char* s);
 
+	/**
+	 * Draws a label on the display using a background color
+	 *
+	 * @param s pointer to the text
+	 * @param align alignment of text in the label
+	 * @param x left start
+	 * @param y top start
+	 * @param width the width of the label
+	 * @param fgColor foreground color
+	 * @param bgColor background color
+	 */
 	void label(const char* s, TextAlign align, uint32_t x, uint32_t y, uint32_t width, uint16_t fgColor, uint16_t bgColor);
 
 	void draw4(uint32_t cx, uint32_t cy, uint32_t x, uint32_t y, uint16_t color);
 	void draw8(uint32_t cx, uint32_t cy, uint32_t x, uint32_t y, uint16_t color, bool fill);
 
+	/**
+	 * Draw a cirle on the display
+	 *
+	 * @param cx left center
+	 * @param cy top center
+	 * @param radius radius of the circle
+	 * @param color the color
+	 * @param fill fill the circle
+	 */
 	void circle(uint32_t cx, uint32_t cy, uint32_t radius, uint16_t color, bool fill);
+
+	/**
+	 * Draw a line between two points
+	 *
+	 * @param x0 left start
+	 * @param y0 top start
+	 * @param x1 left end
+	 * @param y1 top end
+	 * @param color the color
+	 */
 	void line(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint16_t color);
+
+	/**
+	 * Draw a triangle
+	 *
+	 * @param x0 left point 1
+	 * @param y0 top point 1
+	 * @param x1 left point 2
+	 * @param y1 top point 2
+	 * @param x2 left point 3
+	 * @param y2 top point 3
+	 * @param color the color
+	 * @param fill fill the triangle
+	 */
 	void triangle(uint32_t x0, uint32_t y0, uint32_t x1, uint32_t y1, uint32_t x2, uint32_t y2, uint16_t color, bool fill);
 
+	/**
+	 * init the display
+	 *
+	 * @param orientation display orientation
+	 * @param width display width
+	 * @param height display height
+	 */
 	void init(DisplayOrientation orientation, uint32_t width, uint32_t height);
 
 public: // abstract function
     virtual ~Display() {}
+
+    /**
+     * Draw a rect on the display
+     *
+	 * @param x left start
+	 * @param y top start
+     * @param width width of the rect
+     * @param height height of the rect
+     * @param color the color
+     */
     virtual void rect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint16_t color) = 0;
+
+    /**
+     * Draw one pixel
+     *
+     * @param x left
+     * @param y top
+     * @param color the color
+     */
 	virtual void pixel(uint32_t x, uint32_t y, uint16_t color) = 0;
+
+	/**
+	 * Setting the bounds of the write output
+	 *
+	 * @param x left
+	 * @param y top
+	 * @param width width
+	 * @param height height
+	 */
 	virtual void setBounds(uint32_t x, uint32_t y, uint32_t width, uint32_t height) = 0;
+
+	/**
+	 * Write data to display RAM
+	 *
+	 * @param data pointer to data
+	 * @param count number of data elements
+	 */
 	virtual void blit16(const uint16_t* data, uint32_t count) = 0;
 };
 

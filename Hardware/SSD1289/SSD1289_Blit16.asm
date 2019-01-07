@@ -1,3 +1,12 @@
+; Copyright 2019 by Sven Fabricius, see LICENSE.txt
+;
+; @file SSD1289_Blit16.asm
+;
+; @brief Write data to display RAM
+;
+; @author Sven Fabricius
+; Contact: Sven.Fabricius@livediesel.de
+
 ;typedef struct _SSD1289_config
 ;{
 ;	volatile uint16_t * dataOut; + 0
