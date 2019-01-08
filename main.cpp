@@ -12,6 +12,7 @@
 #include <Core/IO.h>
 
 #include <Hardware/SSD1289/SSD1289.h>
+#include <Hardware/XPT2046/XPT2046.h>
 
 #include <Colors.h>
 #include <Board.h>
@@ -31,6 +32,22 @@ const Timer_A_PWMConfig pwmConfig =
     .dutyCycle = (uint_fast16_t)(PWM_PERIOD * LED_PWM)
 };
 
+/* DMA Control Table */
+#if defined(__TI_COMPILER_VERSION__)
+#ifdef __cplusplus
+#pragma DATA_ALIGN(1024)
+#else
+#pragma DATA_ALIGN(MSP432P4111_DMAControlTable, 1024)
+#endif
+#elif defined(__IAR_SYSTEMS_ICC__)
+#pragma data_alignment=1024
+#elif defined(__GNUC__)
+__attribute__ ((aligned (1024)))
+#elif defined(__CC_ARM)
+__align(1024)
+#endif
+static DMA_ControlTable MSP432P4111_DMAControlTable[DMA_CONTROL_MEMORY_ALIGNMENT];
+
 // Port mapper configuration register
 const uint8_t port_mapping[] =
 {
@@ -43,6 +60,13 @@ void setupDisplayLEDPWM(void)
 	MAP_PMAP_configurePorts(port_mapping, PMAP_P2MAP, 1, PMAP_DISABLE_RECONFIGURATION);
 	MAP_GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P2, GPIO_PIN0, GPIO_PRIMARY_MODULE_FUNCTION);
 	MAP_Timer_A_generatePWM(TIMER_A0_BASE, &pwmConfig);
+}
+
+XPT2046 *touchP;
+
+void DMATouchIRQHandler(void)
+{
+	touchP->DMAIRQ();
 }
 
 int main(void)
@@ -68,6 +92,20 @@ int main(void)
     // init PWM for background light
     setupDisplayLEDPWM();
 
+
+    // Configuring DMA module
+    MAP_DMA_enableModule();
+    MAP_DMA_setControlBase(MSP432P4111_DMAControlTable);
+
+    XPT2046 touch(TOUCH_SPI, TOUCH_PORT, TOUCH_CS, TOUCH_SCK, TOUCH_SI, TOUCH_SO);
+    touch.enableDMA(DMA_CH2_EUSCIB1TX0, DMA_CH3_EUSCIB1RX0, DMA_INT1);
+    touchP = &touch;
+
+    MAP_DMA_registerInterrupt(DMA_INT1, DMATouchIRQHandler);
+    MAP_Interrupt_enableInterrupt(DMA_INT1);
+    MAP_DMA_enableInterrupt(DMA_INT1);
+
+    touch.transferDMA();
 
     SSD1289 ssd(LCD_DATA, LCD_CTRL, LCD_CS, LCD_RS, LCD_RD, LCD_WR);
 
