@@ -13,17 +13,28 @@
 
 #include <Hardware/XPT2046/XPT2046_cmd.h>
 
-#define htons(s)				((uint16_t)(((uint16_t)(s) >> 8) | ((uint16_t)(s) << 8)))
-
+/// Channel Mask for extracting DMA channel
 #define DMA_CHANNEL_MASK		(DMA_CHANNEL_0|DMA_CHANNEL_1|DMA_CHANNEL_2|DMA_CHANNEL_3|DMA_CHANNEL_4|DMA_CHANNEL_5|DMA_CHANNEL_6|DMA_CHANNEL_7)
 
+/// rx data offset for X value data
 #define XPT2046_X_OFF			1
+
+/// rx data offset for Z1 value data
 #define XPT2046_Z1_OFF			3
+
+/// rx data offset for Z2 value data
 #define XPT2046_Z2_OFF			5
+
+/// rx data offset for Y value data
 #define XPT2046_Y_OFF			7
 
+/// value mask for data
 #define XPT2046_VALUE_MASK		0xfff
+
+/// value shift for data
 #define XPT2046_VALUE_SHIFT		3
+
+#define GET_RX_DATA(n)			(((rxData[n]<<8) | rxData[n+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK)
 
 /// command sequence
 static const uint8_t xpt2046_command_seq [] = {
@@ -62,12 +73,6 @@ XPT2046::XPT2046(EUSCI_B_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 {
 	setSpiPort(ctrlPort, csPin, sckPin, siPin, soPin);
 
-	// save SPI interface
-	this->spi = spi;
-
-	// #define OFS_UCB0IFG (0x002C) /*!< eUSCI_Ax Interrupt Flag Register */
-	this->ifgOffset = 0x002C;
-
 	spi->CTLW0 |= EUSCI_B_CTLW0_SWRST;
 	spi->CTLW0 |= EUSCI_B_CTLW0_SYNC | EUSCI_B_CTLW0_MST | EUSCI_B_CTLW0_MSB | EUSCI_B_CTLW0_SSEL__SMCLK  | EUSCI_B_CTLW0_CKPH;
 	//spi->IE |= EUSCI_B_IE_TXIE;
@@ -81,12 +86,6 @@ XPT2046::XPT2046(EUSCI_B_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
 {
 	setSpiPort(ctrlPort, csPin, sckPin, siPin, soPin);
-
-	// save SPI interface
-	this->spi = spi;
-
-	// #define OFS_UCA0IFG (0x001C) /*!< eUSCI_Ax Interrupt Flag Register */
-	this->ifgOffset = 0x001C;
 
 	// init SPI register
 	spi->CTLW0 |= EUSCI_A_CTLW0_SWRST;
@@ -127,10 +126,29 @@ void XPT2046::DMAIRQ(void)
 	// unselect touch controller
 	*ctrlOut |= csPin;
 
-	uint16_t X = ((rxData[XPT2046_X_OFF]<<8) | rxData[XPT2046_X_OFF+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK;
-	uint16_t Z1 = ((rxData[XPT2046_Z1_OFF]<<8) | rxData[XPT2046_Z1_OFF+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK;
-	uint16_t Z2 = ((rxData[XPT2046_Z2_OFF]<<8) | rxData[XPT2046_Z2_OFF+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK;
-	uint16_t Y = ((rxData[XPT2046_Y_OFF]<<8) | rxData[XPT2046_Y_OFF+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK;
+	uint16_t x = GET_RX_DATA(XPT2046_X_OFF);
+	uint16_t z1 = GET_RX_DATA(XPT2046_Z1_OFF);
+	uint16_t z2 = GET_RX_DATA(XPT2046_Z2_OFF);
+	uint16_t y = GET_RX_DATA(XPT2046_Y_OFF);
+
+	if (z1 == 0)
+	{
+		z1 = 1;
+	}
+	double pessure = ( (double)x / 4096.0) * (( (double)z2 / (double)z1) - 1.0);
+	if (pessure == 0)
+	{
+		return;
+	}
+
+	uint16_t result = pessure * 100.0;
+
+	result = 0xff - (result & 0xff);
+
+	if (result < 8)
+	{
+		return;
+	}
 }
 
 void XPT2046::transferDMA(void)
