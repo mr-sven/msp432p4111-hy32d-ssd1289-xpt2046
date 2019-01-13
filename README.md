@@ -8,6 +8,9 @@ Tasks:
 - [x] SSD1289 interface class
 - [x] SSD1289 assembler functions for better performance
 - [ ] XPT2046 touch controller interface
+  - [x] SPI read via DMA
+  - [ ] measure multiple times
+  - [ ] calibration
 - [x] code documentation
 
 ## Hardware specification
