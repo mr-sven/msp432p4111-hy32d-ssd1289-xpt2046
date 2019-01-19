@@ -64,12 +64,13 @@ buffer		.set r7
 	LDRH	buffer,		[config, #RS_PIN_OFF]	; load RS pin
 	ORR		w0,			w0,			buffer		; enable RS pin
 
+	STRH	color,	[dataOut]					; set Data out
+
 	ANDS	buffer,		count,		#0x0007		; Test if lower bits of count is set
 	BEQ		l_fast
 
 l_slowLoop: ; Slow data loop
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		SUBS	buffer,	buffer,		#1
@@ -82,42 +83,34 @@ l_fast: ; Fast data
 l_fastLoop: ; fast data loop
 		; ----------------- Data 0 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 1 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 2 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 3 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 4 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 5 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 6 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		; ----------------- Data 7 -----------------
 		STRH	w0,		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-		STRH	color,	[dataOut]				; set Data out
 		STRH	w1,		[ctrlOut]				; set Ctrl out ; WR High, RS High
 
 		SUBS	count,	count,		#1
