@@ -54,7 +54,7 @@ uint32_t Display::drawString(const char* s, uint32_t len, uint32_t x, uint32_t y
 {
 	for (uint16_t i = 0; i < len; i++)
 	{
-		x += drawChar(x, y, s[i], color) + 1;
+		x += drawChar(x, y, s[i], color) + FONT_CHAR_SPACE;
 	}
 	return x;
 }
@@ -94,8 +94,8 @@ void Display::label(const char* s, TextAlign align, uint32_t x, uint32_t y, uint
 		char c = *s++;
 		if (c == 32)
 		{
-			rect(start, y, fontHeight >> 2, fontHeight, bgColor);
-			start += fontHeight >> 2;  // Space is 1/4 font height (yuk);
+			rect(start, y, (fontHeight >> 2) + FONT_CHAR_SPACE, fontHeight, bgColor);
+			start += (fontHeight >> 2) + FONT_CHAR_SPACE;  // Space is 1/4 font height (yuk);
 			continue;
 		}
 
@@ -124,9 +124,9 @@ void Display::label(const char* s, TextAlign align, uint32_t x, uint32_t y, uint
 
 		setBounds(start, y, cWidth, fontHeight);
 		blit16(hLineBuf, fontHeight * cWidth);
-		rect(start + cWidth, y, 1, fontHeight, bgColor);
+		rect(start + cWidth, y, FONT_CHAR_SPACE, fontHeight, bgColor);
 
-		start += cWidth + 1;
+		start += cWidth + FONT_CHAR_SPACE;
 	}
 }
 
@@ -145,7 +145,7 @@ uint32_t Display::measureString(const char* s, uint32_t len)
 	uint32_t x = 0;
 	while (len--)
 	{
-		x += measureChar(*s++) + 1;
+		x += measureChar(*s++) + FONT_CHAR_SPACE;
 	}
 	return x;
 }

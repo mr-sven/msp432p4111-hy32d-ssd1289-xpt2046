@@ -51,6 +51,8 @@
 /// short notation for access char data offset
 #define FONT_CHAR_OFFSET(c)			FNTW(FONT_HEADER_SIZE + (c - fontStart) * FONT_CHAR_WIDTH_OFF_SIZE + 1)
 
+/// additional space pixel for chars
+#define FONT_CHAR_SPACE				1
 
 /**
  * Text align enum for positioning text in a label
@@ -68,9 +70,9 @@ enum class TextAlign
 enum class DisplayOrientation
 {
 	Portrait,		//!< default portrait orientation
-	Landscape_90,	//!< landscape at 90°
-	Portrait_180,	//!< portrait at 180°
-	Landscape_270	//!< landscape at 270°
+	Landscape_90,	//!< landscape at 90ï¿½
+	Portrait_180,	//!< portrait at 180ï¿½
+	Landscape_270	//!< landscape at 270ï¿½
 };
 
 /**

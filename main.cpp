@@ -157,7 +157,6 @@ int main(void)
 		    itoa(sample.x, &strBuf[strlen(strBuf)], 10);
 		    ssd.label(strBuf, TextAlign::Left, 10, 130, 100, Color::DarkBlue, Color::LightGray);
 
-
 			strcpy(strBuf, "Y: ");
 		    itoa(sample.y, &strBuf[strlen(strBuf)], 10);
 		    ssd.label(strBuf, TextAlign::Left, 10, 160, 100, Color::DarkBlue, Color::LightGray);
