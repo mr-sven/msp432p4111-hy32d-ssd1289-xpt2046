@@ -6,6 +6,7 @@
 // Standard Includes
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 
 // Core Includes
 #include <Core/System.h>
@@ -16,6 +17,7 @@
 
 #include <Colors.h>
 #include <Board.h>
+#include <itoa.h>
 
 #include <Fonts/Liberation_Sans21x23.h>
 
@@ -92,7 +94,6 @@ int main(void)
     // init PWM for background light
     setupDisplayLEDPWM();
 
-
     // Configuring DMA module
     MAP_DMA_enableModule();
     MAP_DMA_setControlBase(MSP432P4111_DMAControlTable);
@@ -148,12 +149,24 @@ int main(void)
 
     while(1)
     {
-        touch.readSamples();
     	if (touch.getTouchSample(&sample))
     	{
+			char strBuf[20];
+
+			strcpy(strBuf, "X: ");
+		    itoa(sample.x, &strBuf[strlen(strBuf)], 10);
+		    ssd.label(strBuf, TextAlign::Left, 10, 130, 100, Color::DarkBlue, Color::LightGray);
 
 
+			strcpy(strBuf, "Y: ");
+		    itoa(sample.y, &strBuf[strlen(strBuf)], 10);
+		    ssd.label(strBuf, TextAlign::Left, 10, 160, 100, Color::DarkBlue, Color::LightGray);
+
+			strcpy(strBuf, "Z: ");
+		    itoa(sample.z, &strBuf[strlen(strBuf)], 10);
+		    ssd.label(strBuf, TextAlign::Left, 10, 190, 100, Color::DarkBlue, Color::LightGray);
     	}
+        touch.readSamples();
         MAP_PCM_gotoLPM0();
     }
 }
