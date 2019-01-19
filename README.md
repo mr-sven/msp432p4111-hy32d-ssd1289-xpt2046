@@ -37,6 +37,12 @@ Current Connections:
   * LCD RD: PC.3 (P5.3)
   * LCD CS: PC.4 (P5.4)
 * Backlight PWM: P2.0
+* Touch SPI: EUSCI_B1_SPI
+  * Touch IRQ: P6.1
+  * Touch CS: P6.2
+  * Touch SCK: P6.3
+  * Touch SI: P6.4
+  * Touch SO: P6.5
 
 ## Code
 
