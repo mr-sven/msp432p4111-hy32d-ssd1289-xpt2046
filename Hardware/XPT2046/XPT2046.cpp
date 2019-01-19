@@ -75,12 +75,13 @@ XPT2046::XPT2046(EUSCI_B_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 
 	spi->CTLW0 |= EUSCI_B_CTLW0_SWRST;
 	spi->CTLW0 |= EUSCI_B_CTLW0_SYNC | EUSCI_B_CTLW0_MST | EUSCI_B_CTLW0_MSB | EUSCI_B_CTLW0_SSEL__SMCLK  | EUSCI_B_CTLW0_CKPH;
-	//spi->IE |= EUSCI_B_IE_TXIE;
 	spi->BRW = (48 / 2); // 2MHz
 	spi->CTLW0 &= ~(EUSCI_B_CTLW0_SWRST);
 
 	txbuf = &spi->TXBUF;
 	rxbuf = &spi->RXBUF;
+
+	readingSamples = false;
 }
 
 XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
@@ -90,12 +91,13 @@ XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 	// init SPI register
 	spi->CTLW0 |= EUSCI_A_CTLW0_SWRST;
 	spi->CTLW0 |= EUSCI_A_CTLW0_SYNC | EUSCI_A_CTLW0_MST | EUSCI_A_CTLW0_MSB | EUSCI_A_CTLW0_SSEL__SMCLK  | EUSCI_A_CTLW0_CKPH;
-	//spi->IE |= EUSCI_A_IE_TXIE;
 	spi->BRW = (48 / 2); // 2MHz
 	spi->CTLW0 &= ~(EUSCI_A_CTLW0_SWRST);
 
 	txbuf = &spi->TXBUF;
 	rxbuf = &spi->RXBUF;
+
+	readingSamples = false;
 }
 
 void XPT2046::enableDMA(uint32_t txDma, uint32_t rxDma, uint32_t dmaIrq)
@@ -119,6 +121,47 @@ void XPT2046::enableDMA(uint32_t txDma, uint32_t rxDma, uint32_t dmaIrq)
     MAP_DMA_clearInterruptFlag(rxDma & DMA_CHANNEL_MASK);
 }
 
+bool XPT2046::calculateSample(XPT2046_Sample * sample)
+{
+	// extract data from result buffer
+	uint16_t x = GET_RX_DATA(XPT2046_X_OFF);
+	uint16_t z1 = GET_RX_DATA(XPT2046_Z1_OFF);
+	uint16_t z2 = GET_RX_DATA(XPT2046_Z2_OFF);
+	uint16_t y = GET_RX_DATA(XPT2046_Y_OFF);
+
+	// prevent zero division
+	if (z1 == 0)
+	{
+		z1 = 1;
+	}
+
+	// calculate pressure
+	double pessure = ( (double)x / 4096.0) * (( (double)z2 / (double)z1) - 1.0);
+
+	// check if is touched
+	if (pessure == 0)
+	{
+		return false;
+	}
+
+	// calculate pressure value
+	uint16_t result = pessure * 100.0;
+	result = 0xff - (result & 0xff);
+
+	// check if pressure is to low
+	if (result < 8)
+	{
+		return false;
+	}
+
+	// save samples
+	sample->x = x;
+	sample->y = y;
+	sample->z = result;
+
+	return true;
+}
+
 void XPT2046::DMAIRQ(void)
 {
     MAP_DMA_clearInterruptFlag(rxDma & DMA_CHANNEL_MASK);
@@ -126,39 +169,62 @@ void XPT2046::DMAIRQ(void)
 	// unselect touch controller
 	*ctrlOut |= csPin;
 
-	uint16_t x = GET_RX_DATA(XPT2046_X_OFF);
-	uint16_t z1 = GET_RX_DATA(XPT2046_Z1_OFF);
-	uint16_t z2 = GET_RX_DATA(XPT2046_Z2_OFF);
-	uint16_t y = GET_RX_DATA(XPT2046_Y_OFF);
+	// calculate samples from buffer
+	bool res = calculateSample(&samples[currentSample]);
 
-	if (z1 == 0)
+	// check if sample is valid an minimum samples read
+	if (res && ++currentSample == XPT2046_VALID_SAMPLES)
 	{
-		z1 = 1;
-	}
-	double pessure = ( (double)x / 4096.0) * (( (double)z2 / (double)z1) - 1.0);
-	if (pessure == 0)
-	{
+		readingSamples = false;
+		sampleValid = true;
 		return;
 	}
 
-	uint16_t result = pessure * 100.0;
-
-	result = 0xff - (result & 0xff);
-
-	if (result < 8)
+	// check if maximum sample read is reached
+	if (--sampleReadCount == 0)
 	{
+		readingSamples = false;
 		return;
 	}
+
+	// read next sample
+	transferDMA();
 }
 
 void XPT2046::transferDMA(void)
 {
+	// enable CS pin
 	*ctrlOut &= ~(csPin);
 
+	// set transfer channel address
     MAP_DMA_setChannelTransfer(txDma, UDMA_MODE_BASIC, (void *)xpt2046_command_seq, (void *)txbuf, XPT2046_DATA_TRANSFER_LENGTH);
     MAP_DMA_setChannelTransfer(rxDma, UDMA_MODE_BASIC, (void *)rxbuf, rxData, XPT2046_DATA_TRANSFER_LENGTH);
 
+    // enable DMA channels
     MAP_DMA_enableChannel(rxDma & DMA_CHANNEL_MASK);
     MAP_DMA_enableChannel(txDma & DMA_CHANNEL_MASK);
 }
 
+void XPT2046::readSamples(void)
+{
+	// return if samples are read
+	if (readingSamples)
+	{
+		return;
+	}
+
+	// set current reading state
+	readingSamples = true;
+
+	// invalidate sample
+	sampleValid = false;
+
+	// set current sample pointer
+	currentSample = 0;
+
+	// set maximum samples to read
+	sampleReadCount = XPT2046_VALID_SAMPLES * 2;
+
+	// start DMA transfer
+	transferDMA();
+}

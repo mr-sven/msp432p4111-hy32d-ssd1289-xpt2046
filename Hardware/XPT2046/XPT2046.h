@@ -18,6 +18,19 @@
 /// length of the DMA transfer message
 #define XPT2046_DATA_TRANSFER_LENGTH		9
 
+/// number of samples to read
+#define XPT2046_VALID_SAMPLES				5
+
+/**
+ * struct for accessing sample values
+ */
+typedef struct _XPT2046_Sample
+{
+	uint16_t x;
+	uint16_t y;
+	uint16_t z;
+} XPT2046_Sample;
+
 /**
  * interfacing class for accessing XPT2046 Touch controller
  */
@@ -47,6 +60,21 @@ private:
 	/// DMA Channel IRQ
 	uint32_t dmaIrq;
 
+	/// index of the current sample to read
+	uint8_t currentSample;
+
+	/// samples to read left
+	uint8_t sampleReadCount;
+
+	/// sample list
+	XPT2046_Sample samples[XPT2046_VALID_SAMPLES];
+
+	/// current reading state
+	bool readingSamples;
+
+	/// is current sample valid
+	bool sampleValid;
+
 	/**
 	 * Configure the SPI port IOs
 	 *
@@ -58,6 +86,17 @@ private:
 	 */
 	void setSpiPort(DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin);
 
+	/**
+	 * Start DMA transfer
+	 */
+	void transferDMA(void);
+
+	/**
+	 *
+	 * @param sample
+	 * @return
+	 */
+	bool calculateSample(XPT2046_Sample * sample);
 public:
 	/**
 	 * Constructor
@@ -91,9 +130,9 @@ public:
 	void DMAIRQ(void);
 
 	/**
-	 * Start DMA transfer
+	 * Starts a reading cycle
 	 */
-	void transferDMA(void);
+	void readSamples(void);
 };
 
 #endif /* HARDWARE_XPT2046_XPT2046_H_ */

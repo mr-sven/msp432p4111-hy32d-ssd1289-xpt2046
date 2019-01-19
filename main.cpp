@@ -105,7 +105,7 @@ int main(void)
     MAP_Interrupt_enableInterrupt(DMA_INT1);
     MAP_DMA_enableInterrupt(DMA_INT1);
 
-    touch.transferDMA();
+    touch.readSamples();
 
     SSD1289 ssd(LCD_DATA, LCD_CTRL, LCD_CS, LCD_RS, LCD_RD, LCD_WR);
 
