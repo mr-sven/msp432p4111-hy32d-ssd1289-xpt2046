@@ -34,19 +34,26 @@
 /// value shift for data
 #define XPT2046_VALUE_SHIFT		3
 
+/// get data by index from rx buffer
 #define GET_RX_DATA(n)			(((rxData[n]<<8) | rxData[n+1]) >> XPT2046_VALUE_SHIFT & XPT2046_VALUE_MASK)
+
+/// maximum SPI clock speed
+#define XPT2046_MAX_SPI_SPEED	2000000
+
+/// selected SPI speed
+#define XPT2046_SPI_SPEED		(CS_48MHZ / XPT2046_MAX_SPI_SPEED)
 
 /// command sequence
 static const uint8_t xpt2046_command_seq [] = {
-	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_X),
-	0x00,
-	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Z1),
-	0x00,
-	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Z2),
-	0x00,
-	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Y),
-	0x00,
-	0x00
+	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_X),		// transmit read X command
+	0x00,												// read higher X bits
+	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Z1),	// transmit read Z1 command and read lower X bits
+	0x00,												// read higher Z1 bits
+	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Z2),	// transmit read Z2 command and read lower Z1 bits
+	0x00,												// read higher Z2 bits
+	XPT2046_CMD | XPT2046_CMD_ADDR(XPT2046_ADDR_Y),		// transmit read Y command and read lower Z2 bits
+	0x00,												// read higher Y bits
+	0x00												// read lower Y bits
 };
 
 void XPT2046::setSpiPort(DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
@@ -71,32 +78,39 @@ void XPT2046::setSpiPort(DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin,
 
 XPT2046::XPT2046(EUSCI_B_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
 {
+	// setup io pins
 	setSpiPort(ctrlPort, csPin, sckPin, siPin, soPin);
 
+	// init SPI register
 	spi->CTLW0 |= EUSCI_B_CTLW0_SWRST;
 	spi->CTLW0 |= EUSCI_B_CTLW0_SYNC | EUSCI_B_CTLW0_MST | EUSCI_B_CTLW0_MSB | EUSCI_B_CTLW0_SSEL__SMCLK  | EUSCI_B_CTLW0_CKPH;
-	spi->BRW = (48 / 2); // 2MHz
+	spi->BRW = XPT2046_SPI_SPEED;
 	spi->CTLW0 &= ~(EUSCI_B_CTLW0_SWRST);
 
+	// store SPI buffers
 	txbuf = &spi->TXBUF;
 	rxbuf = &spi->RXBUF;
 
+	// init var
 	readingSamples = false;
 }
 
 XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
 {
+	// setup io pins
 	setSpiPort(ctrlPort, csPin, sckPin, siPin, soPin);
 
 	// init SPI register
 	spi->CTLW0 |= EUSCI_A_CTLW0_SWRST;
 	spi->CTLW0 |= EUSCI_A_CTLW0_SYNC | EUSCI_A_CTLW0_MST | EUSCI_A_CTLW0_MSB | EUSCI_A_CTLW0_SSEL__SMCLK  | EUSCI_A_CTLW0_CKPH;
-	spi->BRW = (48 / 2); // 2MHz
+	spi->BRW = XPT2046_SPI_SPEED;
 	spi->CTLW0 &= ~(EUSCI_A_CTLW0_SWRST);
 
+	// store SPI buffers
 	txbuf = &spi->TXBUF;
 	rxbuf = &spi->RXBUF;
 
+	// init var
 	readingSamples = false;
 }
 
@@ -236,6 +250,7 @@ bool XPT2046::getTouchSample(XPT2046_Sample * sample)
 		return false;
 	}
 
+	// Get the median of 5 valid samples
 	for (uint8_t i = 0; i < 3; i++)
 	{
 		for (uint8_t j = i+1; j < XPT2046_VALID_SAMPLES; j++)
