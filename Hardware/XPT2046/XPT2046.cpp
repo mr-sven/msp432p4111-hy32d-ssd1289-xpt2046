@@ -228,3 +228,44 @@ void XPT2046::readSamples(void)
 	// start DMA transfer
 	transferDMA();
 }
+
+bool XPT2046::getTouchSample(XPT2046_Sample * sample)
+{
+	if (!sampleValid)
+	{
+		return false;
+	}
+
+	for (uint8_t i = 0; i < 3; i++)
+	{
+		for (uint8_t j = i+1; j < XPT2046_VALID_SAMPLES; j++)
+		{
+			if (samples[i].x > samples[j].x)
+			{
+				uint16_t t = samples[i].x;
+				samples[i].x = samples[j].x;
+				samples[j].x = t;
+			}
+
+			if (samples[i].y > samples[j].y)
+			{
+				uint16_t t = samples[i].y;
+				samples[i].y = samples[j].y;
+				samples[j].y = t;
+			}
+
+			if (samples[i].z > samples[j].z)
+			{
+				uint16_t t = samples[i].z;
+				samples[i].z = samples[j].z;
+				samples[j].z = t;
+			}
+		}
+	}
+
+	sample->x = samples[2].x;
+	sample->y = samples[2].y;
+	sample->z = samples[2].z;
+
+	return true;
+}

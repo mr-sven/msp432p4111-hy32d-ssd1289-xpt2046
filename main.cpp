@@ -105,7 +105,6 @@ int main(void)
     MAP_Interrupt_enableInterrupt(DMA_INT1);
     MAP_DMA_enableInterrupt(DMA_INT1);
 
-    touch.readSamples();
 
     SSD1289 ssd(LCD_DATA, LCD_CTRL, LCD_CS, LCD_RS, LCD_RD, LCD_WR);
 
@@ -144,8 +143,17 @@ int main(void)
     ssd.drawString("hello", 30, 20, Color::Black);
 
     ssd.label("Hello", TextAlign::Center, 100, 100, 100, Color::Magenta, Color::YellowGold);
+
+    XPT2046_Sample sample;
+
     while(1)
     {
+        touch.readSamples();
+    	if (touch.getTouchSample(&sample))
+    	{
+
+
+    	}
         MAP_PCM_gotoLPM0();
     }
 }

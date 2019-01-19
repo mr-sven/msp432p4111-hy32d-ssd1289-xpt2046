@@ -92,9 +92,10 @@ private:
 	void transferDMA(void);
 
 	/**
+	 * Calculate current sample from buffer
 	 *
-	 * @param sample
-	 * @return
+	 * @param sample result if sample is valid
+	 * @return true if sample is valid
 	 */
 	bool calculateSample(XPT2046_Sample * sample);
 public:
@@ -133,6 +134,14 @@ public:
 	 * Starts a reading cycle
 	 */
 	void readSamples(void);
+
+	/**
+	 * Returns a valid touch sample
+	 *
+	 * @param sample the valid sample
+	 * @return true if sample is valid
+	 */
+	bool getTouchSample(XPT2046_Sample * sample);
 };
 
 #endif /* HARDWARE_XPT2046_XPT2046_H_ */
