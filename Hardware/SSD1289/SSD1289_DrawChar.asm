@@ -72,6 +72,8 @@ buffer		.set r10
 	LDRH	buffer,		[config, #RD_PIN_OFF]	; load RD pin
 	BIC		rd,			w0,			buffer		; disable RD pin
 
+	STRH 	color,		[dataOut]				; set Data out
+
 l_setWidth:										; from now config (R0) will be used as width counter
 	MOV		widthCnt,	#0						; set width counter
 	SUBS	height,		height,		#1			; decrement height
@@ -84,7 +86,6 @@ l_shiftData:
 	LSRS	buffer,		buffer,		#1			; right shift use carry
 	BCC		l_clear								; branch if carry is clear
 	STRH 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-	STRH 	color,		[dataOut]				; set Data out
 	STRH 	w0,			[ctrlOut]				; set Ctrl out ; WR High, RS High
 	B		l_contAsm							; step over
 
