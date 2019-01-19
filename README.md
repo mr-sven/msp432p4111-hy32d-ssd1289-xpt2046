@@ -9,7 +9,8 @@ Tasks:
 - [x] SSD1289 assembler functions for better performance
 - [ ] XPT2046 touch controller interface
   - [x] SPI read via DMA
-  - [ ] measure multiple times
+  - [x] measure multiple times
+  - [ ] touch down detection
   - [ ] calibration
 - [x] code documentation
 
