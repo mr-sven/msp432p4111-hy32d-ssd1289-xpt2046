@@ -93,6 +93,7 @@ XPT2046::XPT2046(EUSCI_B_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 
 	// init var
 	readingSamples = false;
+	sampleValid = false;
 }
 
 XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort, uint16_t csPin, uint16_t sckPin, uint16_t siPin, uint16_t soPin)
@@ -112,6 +113,7 @@ XPT2046::XPT2046(EUSCI_A_SPI_Type * spi, DIO_PORT_Interruptable_Type * ctrlPort,
 
 	// init var
 	readingSamples = false;
+	sampleValid = false;
 }
 
 void XPT2046::enableDMA(uint32_t txDma, uint32_t rxDma, uint32_t dmaIrq)
