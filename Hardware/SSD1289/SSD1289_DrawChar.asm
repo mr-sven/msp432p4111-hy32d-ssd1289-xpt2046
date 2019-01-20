@@ -84,16 +84,12 @@ l_loadData:
 
 l_shiftData:
 	LSRS	buffer,		buffer,		#1			; right shift use carry
-	BCC		l_clear								; branch if carry is clear
-	STRH 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High
-	STRH 	w0,			[ctrlOut]				; set Ctrl out ; WR High, RS High
-	B		l_contAsm							; step over
-
-l_clear:										; dummy read to hold transparency
-	STRH 	rd, 		[ctrlOut]				; set Ctrl out ; RD Low, RS High
-	STRH 	w0,			[ctrlOut]				; set Ctrl out ; RD High, RS High
+	ITE		CS									; thumb carry set execution
+	STRHCS 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High ; write color
+	STRHCC 	rd, 		[ctrlOut]				; set Ctrl out ; RD Low, RS High ; dummy read to hold transparency
 
 l_contAsm:
+	STRH 	w0,			[ctrlOut]				; set Ctrl out ; RD High, RS High
 	ADD		widthCnt,	widthCnt,	#1			; inc width count
 	CMP		widthCnt,	width					; compare width and maxwidth
 	BEQ		l_setWidth							; reset width and load next data
