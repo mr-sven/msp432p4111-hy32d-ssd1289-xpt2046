@@ -88,7 +88,6 @@ l_shiftData:
 	STRHCS 	wr, 		[ctrlOut]				; set Ctrl out ; WR Low, RS High ; write color
 	STRHCC 	rd, 		[ctrlOut]				; set Ctrl out ; RD Low, RS High ; dummy read to hold transparency
 
-l_contAsm:
 	STRH 	w0,			[ctrlOut]				; set Ctrl out ; RD High, RS High
 	ADD		widthCnt,	widthCnt,	#1			; inc width count
 	CMP		widthCnt,	width					; compare width and maxwidth
