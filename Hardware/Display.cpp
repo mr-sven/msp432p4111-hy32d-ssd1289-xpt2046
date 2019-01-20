@@ -41,7 +41,6 @@ uint32_t Display::drawChar(uint32_t xx, uint32_t yy, char c, uint16_t color)
 			}
 			if(p & 0x01)
 			{
-				//ILI9341.Rectangle(x + xx, y + yy, 1, 1, color);
 				pixel(x + xx, y + yy, color);
 			}
 			p >>= 1;
